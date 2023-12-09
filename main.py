@@ -1,5 +1,7 @@
 # Find link location and
 from pypdf import PdfReader,PdfWriter
+
+from pypdf import Text
 from bs4 import BeautifulSoup
 import requests
 pdf_path = "<REPLACE_WITH_PATH_TO_PDF>"
@@ -56,3 +58,25 @@ def reference_and_content(reference,author_dict):
         for l in author_dict:
             if author_name[i] in str(author_dict[l]):
                 reference_and_content.append([reference[0][i],author_dict[l]])
+
+def annotate_paper():
+
+    page = reader.pages[0]
+    writer = PdfWriter()
+    writer.add_page(page)
+    annotations = page.get('/Annots')
+    # Example usage
+    output_pdf_path = 'new-annotated.pdf'
+
+    for ref,content in reference_and_content:
+        rect = ref['/Rect']
+        annotation_text = Text(
+            text=content[1],
+            rect=tuple(rect),
+            open=False
+        )
+        writer.add_annotation(page_number=0, annotation=annotation_text)
+
+
+    with open(output_pdf_path, "wb") as fp:
+        writer.write(fp)
